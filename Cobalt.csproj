@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1227D411-A9D5-46DA-A019-2B3735F85481}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Cobalt</RootNamespace>
+    <AssemblyName>Cobalt</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.4.0.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\CobaltMVC\Library\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Routing">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attr.cs" />
+    <Compile Include="CobaltControl.cs" />
+    <Compile Include="CobaltElement.cs" />
+    <Compile Include="CobaltConfiguration.cs" />
+    <Compile Include="CobaltRenderPhase.cs" />
+    <Compile Include="CobaltTemplate.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="Web\CobaltUserControl.cs" />
+    <Compile Include="Web\CobaltWebControl.cs" />
+    <Compile Include="Css\CssSelector.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Css\CssSelectorDetail.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Css\CssSelectorReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Css\CssSelectorScope.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GenericCobaltException.cs" />
+    <Compile Include="Html\HtmlAgilityNode.cs" />
+    <Compile Include="Html\HtmlDocument.cs" />
+    <Compile Include="Html\HtmlNode.cs" />
+    <Compile Include="Html\HtmlNodeExtensionMethods.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Web\Adapters\CobaltControlAdapter.cs" />
+    <Compile Include="Web\Adapters\CobaltPageAdapter.cs" />
+    <Compile Include="Web\CobaltAttributePairs.cs" />
+    <Compile Include="Web\CobaltContext.cs" />
+    <Compile Include="Web\CobaltTemplateRenderPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\Controls\Hyperlink.cs" />
+    <Compile Include="Web\Controls\Stylesheet.cs" />
+    <Compile Include="Web\Mvc\CobaltResult.cs" />
+    <Compile Include="Web\Mvc\ControllerExtensions.cs" />
+    <Compile Include="Interfaces\ICobaltElement.cs" />
+    <Compile Include="Web\Mvc\ModelTemplateAttribute.cs" />
+    <Compile Include="Web\ReadyContext.cs" />
+    <Compile Include="Web\ControlExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BrowserFile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Web\WebForms\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
