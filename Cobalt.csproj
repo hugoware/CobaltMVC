@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Cobalt.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Cobalt.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack, Version=1.4.0.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
@@ -97,6 +99,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Web\Controls\Hyperlink.cs" />
+    <Compile Include="Web\Controls\Script.cs" />
     <Compile Include="Web\Controls\Stylesheet.cs" />
     <Compile Include="Web\Mvc\CobaltResult.cs" />
     <Compile Include="Web\Mvc\ControllerExtensions.cs" />
