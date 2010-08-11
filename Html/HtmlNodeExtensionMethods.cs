@@ -54,16 +54,9 @@ namespace Cobalt {
         /// </summary>
         public static IEnumerable<HtmlNode> Each(this IEnumerable<HtmlNode> nodes, Action<HtmlNode> with) {
 
-            //loop and run the elements in order but make
-            //sure that any changes to the collection don't 
-            //end up killing the enumeration in the process
-            List<HtmlNode> elements = nodes.ToList();
-            for (int i = elements.Count; i --> 0;) {
-                with(elements.ElementAt(0));
-                elements.RemoveAt(0);
-            }
-
-            //return the original collection
+            //move into separate list to make sure the
+            //collection isn't accidentially modified
+            nodes.ToList().ForEach(with);
             return nodes;
         }
 
