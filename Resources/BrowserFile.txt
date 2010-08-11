@@ -3,6 +3,8 @@
     <browser refID="Default">
         <controlAdapters>
             <adapter controlType="System.Web.UI.Page" adapterType="Cobalt.Web.Adapters.CobaltPageAdapter" />
+            <adapter controlType="System.Web.Mvc.ViewMasterPage" adapterType="Cobalt.Web.Adapters.CobaltControlAdapter" />
+            <adapter controlType="System.Web.UI.MasterPage" adapterType="Cobalt.Web.Adapters.CobaltControlAdapter" />
             <adapter controlType="System.Web.Mvc.ViewUserControl" adapterType="Cobalt.Web.Adapters.CobaltControlAdapter" />
             <adapter controlType="System.Web.UI.Control" adapterType="Cobalt.Web.Adapters.CobaltControlAdapter" />
         </controlAdapters>
