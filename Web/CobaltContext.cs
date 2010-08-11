@@ -18,7 +18,7 @@ namespace Cobalt.Web {
 
         //shared tags for fixing HtmlAgility errors
         internal const string PROTECTED_TAGS = "form|p";
-        internal const string SELF_CLOSING_TAGS = "input|link|br|hr";
+        internal const string SELF_CLOSING_TAGS = "input|link|br|hr|meta";
 
         //other expressions
         private const string CLOSE_NO_CONTENT_TAG = "/>";
@@ -153,6 +153,17 @@ namespace Cobalt.Web {
         #region Methods
 
         /// <summary>
+        /// Attempts to resolve the url for a request using
+        /// the information available within the context
+        /// </summary>
+        public string ResolvePath(string path) {
+            path = (path ?? string.Empty).Trim();
+            return path.StartsWith("~")
+                ? this.Page.ResolveUrl(path)
+                : path;
+        }
+
+        /// <summary>
         /// This cancels all Cobalt processing if calledbefore the Generate phase
         /// </summary>
         public void CancelProcessing() {
@@ -164,43 +175,35 @@ namespace Cobalt.Web {
         /// </summary>
         internal string ProcessDocument(object context, string html) {
 
-
             //just in case, cancel this step if not processing
             this.Page = context as Page;
             if (!this.Process || this.Phase == CobaltRenderPhase.Completed) { return html; }
-            Log.Write(this, "Preparing page");
 
             //creates the document content
             if (this.BeforeGenerate != null) { this.BeforeGenerate(ref html); }
             this.Phase = CobaltRenderPhase.Generate;
             this._GenerateDocumentPageContext(context, html);
-            Log.Write(this, "Created page context");
 
             //rebuild the content
             this._PopulateHtmlContextNodes();
-            Log.Write(this, "Populated UserControl nodes");
             if (this.AfterGenerate != null) { this.AfterGenerate(this.DocumentHtml); }
 
             //add any fixes for the document
             if (this.BeforeApply != null) { this.BeforeApply(this.DocumentHtml); }
             this._ApplyHtmlAgilityHacks();
-            Log.Write(this, "Applied HTML Agility Hacks");
 
             //apply the waiting actions
             this.Phase = CobaltRenderPhase.Apply;
             this._ApplyReadyActions();
-            Log.Write(this, "Finished ready actions");
 
             //revert any Html fixes
             this._RevertHtmlAgilityHacks();
-            Log.Write(this, "Reverted hacks");
             if (this.AfterApply != null) { this.AfterApply(this.DocumentHtml); }
 
             //finally, return the finished document
             if (this.BeforeFinalize != null) { this.BeforeFinalize(this.DocumentHtml); }
             this.Phase = CobaltRenderPhase.Rendering;
             string content = this._GetFinalDocumentHtml();
-            Log.Write(this, "Exported HTML content");
             this.DocumentHtml = null;
             if (this.AfterFinalize != null) { this.AfterFinalize(ref content); }
 
