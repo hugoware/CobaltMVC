@@ -6,6 +6,8 @@ using Cobalt.Html;
 using Cobalt.Interfaces;
 using Cobalt.Css;
 using Cobalt.Web;
+using System.Web.UI;
+using System.Web.Mvc;
 
 namespace Cobalt {
 
@@ -77,6 +79,13 @@ namespace Cobalt {
         #region Properties
 
         /// <summary>
+        /// Is this CobaltElement empty of nodes
+        /// </summary>
+        public bool IsEmpty {
+            get { return !this._Selected.Any(); }
+        }
+
+        /// <summary>
         /// Returns the currently selected elements
         /// </summary>
         public virtual IEnumerable<HtmlNode> Selected {
@@ -84,6 +93,31 @@ namespace Cobalt {
             set { this._Selected = value; }
         }
         private IEnumerable<HtmlNode> _Selected;
+
+        #endregion
+
+        #region Static Creation
+
+        /// <summary>
+        /// Creates a new CobaltElement from the HTML provided
+        /// </summary>
+        public static CobaltElement Create(string html) {
+            return CobaltElement.Create(new CobaltElement(html));
+        }
+
+        /// <summary>
+        /// Creates a new CobaltElement using the element provided
+        /// </summary>
+        public static CobaltElement Create(ICobaltElement element) {
+            return CobaltElement.Create(new ICobaltElement[] { element });
+        }
+
+        /// <summary>
+        /// Creates a new CobaltElement using the elements provided
+        /// </summary>
+        public static CobaltElement Create(IEnumerable<ICobaltElement> elements) {
+            return new CobaltElement(elements);
+        }
 
         #endregion
 
@@ -105,27 +139,20 @@ namespace Cobalt {
 
         #endregion
 
-        #region Methods
+        #region Finding and Selecting
 
         /// <summary>
         /// Uses the CSS selector to select the correct elements
         /// </summary>
         public virtual CobaltElement Find(string selector) {
-            return new CobaltElement(this.FindElements(selector));
+            return this.Find(selector, null);
         }
 
         /// <summary>
         /// Uses the CSS selector to select the correct elements
         /// </summary>
         public virtual CobaltElement Find(string selector, Action<CobaltElement> with) {
-
-            //perform the action if needed
-            if (with is Action<CobaltElement>) {
-                with(new CobaltElement(this.Find(selector)));
-            }
-
-            //return the current context
-            return this;
+            return this.FilterAction(selector, this.Selected, with);
         }
 
         /// <summary>
@@ -266,13 +293,35 @@ namespace Cobalt {
         #region Manipulation
 
         /// <summary>
+        /// Performs an action with the selected element
+        /// </summary>
+        public virtual CobaltElement With(Action<CobaltElement> with) {
+            this.FilterAction(string.Empty, this.Selected, with);
+            return this;
+        }
+
+        /// <summary>
+        /// Performs an action with the selected element
+        /// </summary>
+        public virtual CobaltElement With(string selector, Action<CobaltElement> with) {
+            this.FilterAction(selector, this.Selected, with);
+            return this;
+        }
+
+        /// <summary>
         /// Appends items to this a different element
         /// </summary>
         public virtual CobaltElement AppendTo(CobaltElement target) {
 
+            //if this is already empty, add an element now
+            if (target.IsEmpty) {
+                target.Include(this);
+                return this;
+            }
+
             //moves a node into another container
             return this.Apply(child => {
-                HtmlNode node = target.Selected.LastOrDefault();
+                HtmlNode node = target.Selected.HtmlNodes().LastOrDefault();
                 if (node == null) { return; }
                 node.Append(child);
             });
@@ -334,8 +383,11 @@ namespace Cobalt {
         /// </summary>
         public virtual CobaltElement Append(CobaltElement element) {
 
+            //if this is already empty, add an element now
+            if (this.IsEmpty) { return this.Include(element); }
+
             //moves a node into another container
-            HtmlNode target = this.Selected.LastOrDefault();
+            HtmlNode target = this.Selected.HtmlNodes().LastOrDefault();
             if (target is HtmlNode) {
                 target.Append(element.Selected);
             }
@@ -385,9 +437,15 @@ namespace Cobalt {
         /// </summary>
         public virtual CobaltElement PrependTo(CobaltElement target) {
 
+            //if this is already empty, add an element now
+            if (target.IsEmpty) { 
+                target.Include(this);
+                return this;
+            }
+
             //moves a node into another container
             return this.Apply(child => {
-                HtmlNode node = target.Selected.LastOrDefault();
+                HtmlNode node = target.Selected.HtmlNodes().LastOrDefault();
                 if (node == null) { return; }
                 node.Prepend(child);
             });
@@ -436,6 +494,7 @@ namespace Cobalt {
         public virtual CobaltElement Prepend(string html) {
             return this.Prepend(new CobaltElement(html));
         }
+        
         /// <summary>
         /// Prepends the html content to another element
         /// </summary>
@@ -448,8 +507,11 @@ namespace Cobalt {
         /// </summary>
         public virtual CobaltElement Prepend(CobaltElement element) {
 
+            //if this is already empty, add an element now
+            if (this.IsEmpty) { return this.Include(element); }
+
             //moves a node into another container
-            HtmlNode target = this.Selected.LastOrDefault();
+            HtmlNode target = this.Selected.HtmlNodes().LastOrDefault();
             if (target is HtmlNode) {
                 target.Prepend(element.Selected);
             }
@@ -690,9 +752,9 @@ namespace Cobalt {
             return this.Apply(selector, node => node.Remove());
         }
 
-        ///// <summary>
-        ///// Clears all attributes and children from the selected nodes
-        ///// </summary>
+        /// <summary>
+        /// Clears all attributes and children from the selected nodes
+        /// </summary>
         public virtual CobaltElement ClearAll() {
             return this.Empty().ClearAttributes();
         }
@@ -708,7 +770,14 @@ namespace Cobalt {
         /// Wraps each of the selected elements with the provided CobaltElement
         /// </summary>
         public virtual CobaltElement Wrap(CobaltElement element) {
-            return new CobaltElement(this.Selected.Select(node => element.Clone().InsertBefore(node).Append(node)));
+
+            //include the new element
+            element.InsertBefore(this.Selected);
+            element.Append(this.Selected);
+
+            //update the selected items
+            this.Selected = element.Selected;
+            return this;
         }
 
         /// <summary>
@@ -736,8 +805,10 @@ namespace Cobalt {
         /// Wraps the entire CobaltElement with the provided CobaltElement
         /// </summary>
         public virtual CobaltElement WrapAll(CobaltElement element) {
-            if (!this.Selected.Any()) { return new CobaltElement(element); }
-            return new CobaltElement(element.Clone().InsertBefore(this.Selected.First()).Append(this.Selected));
+            if (!this.Selected.Any()) { return this; }
+            element.Append(this.Selected);
+            this.Selected = element.Selected;
+            return this;
         }
 
         /// <summary>
@@ -765,7 +836,10 @@ namespace Cobalt {
         /// Wraps each of the child elements with the provided CobaltElement
         /// </summary>
         public virtual CobaltElement WrapInner(CobaltElement element) {
-            return new CobaltElement(this.Children().Wrap(element));
+            IEnumerable<HtmlNode> nodes = this.Children().Selected.HtmlNodes();
+            CobaltElement wrapped = new CobaltElement(nodes.Select(child => element.Clone().InsertBefore(child).Append(child)));
+            this.Selected = wrapped.Selected.Except(nodes);
+            return this;
         }
 
         /// <summary>
@@ -1181,9 +1255,7 @@ namespace Cobalt {
         /// Applies an action to each of the selected nodes
         /// </summary>
         protected internal virtual CobaltElement Apply(Action<HtmlNode> apply) {
-            foreach (HtmlNode node in this.Selected.HtmlNodes()) {
-                apply(node);
-            }
+            this.Selected.HtmlNodes().ToList().ForEach(apply);
             return this;
         }
 
@@ -1234,38 +1306,27 @@ namespace Cobalt {
         protected virtual CobaltElement FilterAction(string selector, IEnumerable<HtmlNode> nodes, Action<CobaltElement> with) {
 
             //get the nodes and filter as required
-            if (selector is string) {
+            if (selector is string && !string.IsNullOrEmpty(selector.Trim())) {
                 CssSelector css = new CssSelector(selector, nodes);
                 nodes = css.GetMatches();
             }
 
-            //select the new element
-            CobaltElement selection = new CobaltElement(nodes);
-
             //perform the action if needed
-            this._WithAction(selection, with);
+            this._WithAction(nodes, with);
 
             //handles returning the correct action - When using
             //a with method, the CobaltElement is considered 
             //disposed so we stick with the current instance
             return with is Action<CobaltElement>
                 ? this
-                : selection;
+                : new CobaltElement(nodes);
         }
 
         //performs an action (if anything was found)
-        private void _WithAction(CobaltElement element, Action<CobaltElement> action) {
+        private void _WithAction(IEnumerable<HtmlNode> elements, Action<CobaltElement> action) {
             if (action == null) { return; }
-            foreach (CobaltElement item in element.Selected.Select(item => new CobaltElement(item))) {
-                action(item);
-            }
-        }
-
-        //performs an action (if anything was found)
-        private void _WithAction(CobaltElement element, Action<HtmlNode> action) {
-            if (action == null) { return; }
-            foreach (HtmlNode item in element.Selected) {
-                action(item);
+            foreach (HtmlNode element in elements) {
+                action(new CobaltElement(element));
             }
         }
 
