@@ -19,9 +19,7 @@ namespace Cobalt.Web {
         /// Finds elements for the current context
         /// </summary>
         public static CobaltElement Find(this Control control, string selector) {
-            ReadyContext context = CobaltContext.Current.FindReadyContextByInstance(control);
-            CobaltElement element = new CobaltElement(context.Nodes);
-            return element.Find(selector);
+            return control.Find(selector, null);
         }
 
         /// <summary>
@@ -31,8 +29,14 @@ namespace Cobalt.Web {
         public static CobaltElement Find(this Control control, string selector, Action<CobaltElement> with) {
             ReadyContext context = CobaltContext.Current.FindReadyContextByInstance(control);
             CobaltElement element = new CobaltElement(context.Nodes);
-            with(element.Find(selector));
-            return element;
+            return element.Find(selector, with);
+        }
+
+        /// <summary>
+        /// Creates an entirely new CobaltElement with the html provided
+        /// </summary>
+        public static CobaltElement Create(this Control control, string html) {
+            return new CobaltElement(html);
         }
     
     }
