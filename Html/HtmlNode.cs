@@ -244,8 +244,12 @@ namespace Cobalt.Html {
         /// Appends each of the CSS class values added
         /// </summary>
         public void AddCss(params string[] css) {
-            css = Regex.Split(string.Concat(css), @"\s");
-            IEnumerable<string> values = this._GetAttributeValues("class").Union(css).Distinct();
+            css = Regex.Split(string.Join(" ", css), @"\s");
+            IEnumerable<string> values = this._GetAttributeValues("class")
+                .Union(css)
+                .Select(item => (item ?? string.Empty).Trim())
+                .Distinct()
+                .Where(item => !string.IsNullOrEmpty(item));
             this._SetAttributeValues("class", values);
         }
 
@@ -293,7 +297,7 @@ namespace Cobalt.Html {
             html = CobaltContext.Current.ApplyHtmlAgilityTextHacks(html);
 
             //enclose in a container to help HtmlAgility not freak out :)
-            html = string.Concat("<container>", html, "</container>");
+            html = string.Concat("<container>", html, " </container>");
             HtmlAgilityPack.HtmlNode container = HtmlAgilityPack.HtmlNode.CreateNode(html);
 
             //return the matching nodes
@@ -371,6 +375,15 @@ namespace Cobalt.Html {
         }
 
         /// <summary>
+        /// Detatches a node from the document (but doesn't delete it)
+        /// </summary>
+        public void Detatch() {
+            HtmlAgilityPack.HtmlNode clone = this._Container.Clone();
+            this._Container.Remove();
+            this._Container = clone;
+        }
+
+        /// <summary>
         /// Moves a node before the target node
         /// </summary>
         public void InsertBefore(HtmlNode target) {
@@ -399,15 +412,6 @@ namespace Cobalt.Html {
         /// </summary>
         public void Append(HtmlNode node) {
             this.Append(new HtmlNode[] { node });
-        }
-
-        /// <summary>
-        /// Detatches a node from the document (but doesn't delete it)
-        /// </summary>
-        public void Detatch() {
-            HtmlAgilityPack.HtmlNode clone = this._Container.Clone();
-            this._Container.Remove();
-            this._Container = clone;
         }
 
         /// <summary>
