@@ -99,7 +99,6 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Web\Controls\Hyperlink.cs" />
-    <Compile Include="Web\Controls\Script.cs" />
     <Compile Include="Web\Controls\Stylesheet.cs" />
     <Compile Include="Web\Mvc\CobaltResult.cs" />
     <Compile Include="Web\Mvc\ControllerExtensions.cs" />
